@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     "huey.contrib.djhuey",
     "rest_framework",
     "django_filters",
+    "django_blocklist",
 ]
 
 MIDDLEWARE = [
@@ -73,6 +74,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django_ratelimit.middleware.RatelimitMiddleware",
     "django_prometheus.middleware.PrometheusAfterMiddleware",
+    "django_blocklist.middleware.BlocklistMiddleware",
 ]
 
 ROOT_URLCONF = "shadowmere.urls"
@@ -295,6 +297,15 @@ if not DEBUG and os.getenv("SENTRY_DSN") != "":
         # django.contrib.auth) you may enable sending PII data.
         send_default_pii=True,
     )
+
+
+cooldown = os.getenv("BLOCKLIST_COOLDOWN", 1)
+
+BLOCKLIST_CONFIG = {
+    "denial-template": "Your IP address ({ip}) has been blocked. Try again after {cooldown} day(s).",
+    "cooldown": cooldown,
+    "cache-ttl": 30,
+}
 
 RATELIMIT_ENABLE = not DEBUG
 RATELIMIT_VIEW = "proxylist.views.ratelimited_error"
